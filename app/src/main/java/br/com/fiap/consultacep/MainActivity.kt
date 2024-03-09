@@ -33,7 +33,12 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.fiap.consultacep.model.Endereco
+import br.com.fiap.consultacep.service.RetrofitFactory
 import br.com.fiap.consultacep.ui.theme.ConsultaCEPTheme
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,10 +59,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CepScreen() {
 
+    // Criação de variáveis de estado que guardam os valores dos campos de entrada
     var cepState by remember { mutableStateOf("") }
     var ufState by remember { mutableStateOf("") }
     var cidadeState by remember { mutableStateOf("") }
     var ruaState by remember { mutableStateOf("") }
+
+    // Criação de variável de estado que guardará a lista de endereços devolvida pela API
+    var listaEnderecoState by remember { mutableStateOf(listOf<Endereco>()) }
 
     Column(
         modifier = Modifier
@@ -152,7 +161,37 @@ fun CepScreen() {
                             capitalization = KeyboardCapitalization.Words
                         )
                     )
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        /*
+                        Criação de um objeto Call para o método getEnderecos da interface CepService,
+                        passando os valores dos campos de entrada como parâmetros (variáveis de estados).
+                         */
+                        val call = RetrofitFactory()
+                            .getCepService()
+                            .getEnderecos(ufState, cidadeState, ruaState)
+
+                        /*
+                        Resposta do servidor que será armazenada no argumento response do método onResponse.
+                         */
+                        call.enqueue(object : Callback<List<Endereco>> {
+                            override fun onResponse(
+                                call: Call<List<Endereco>>,
+                                response: Response<List<Endereco>>
+                            ) {
+                                /*
+                                Atribuição da resposta do servidor à variável de estado listaEnderecoState
+                                o valor retornado pela função body() do objeto response, que é uma lista de endereços
+                                devolvida pelo endpoint da API do ViaCEP.
+                                 */
+                                listaEnderecoState = response.body()!!
+                            }
+
+                            // Tratamento de erro da requisição ao servidor REST da API do ViaCEP.
+                            override fun onFailure(call: Call<List<Endereco>>, t: Throwable) {
+                                TODO("Not yet implemented")
+                            }
+                        })
+                    }) {
                         Icon(imageVector = Icons.Default.Search, contentDescription = "")
                     }
                 }
@@ -160,21 +199,24 @@ fun CepScreen() {
         }
         Spacer(modifier = Modifier.height(8.dp))
         LazyColumn() {
-            items(120) {
-                CardEndereco()
+           items(listaEnderecoState){
+               CardEndereco(it)
             }
         }
     }
 }
 
 @Composable
-fun CardEndereco() {
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(bottom = 4.dp)) {
-        Column(modifier = Modifier
+fun CardEndereco(endereco: Endereco) {
+    Card(
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(bottom = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
         ) {
             Text(text = "CEP:")
             Text(text = "Rua:")
