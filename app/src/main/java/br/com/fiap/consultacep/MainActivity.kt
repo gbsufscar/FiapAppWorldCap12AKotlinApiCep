@@ -220,11 +220,11 @@ fun CardEndereco(endereco: Endereco) {
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
-            Text(text = "CEP:")
-            Text(text = "Rua:")
-            Text(text = "Cidade:")
-            Text(text = "Bairro:")
-            Text(text = "UF:")
+            Text(text = "CEP: ${endereco.cep}")
+            Text(text = "Rua: ${endereco.rua}")
+            Text(text = "Cidade: ${endereco.cidade}")
+            Text(text = "Bairro: ${endereco.bairro}")
+            Text(text = "UF: ${endereco.uf}")
         }
     }
 }
