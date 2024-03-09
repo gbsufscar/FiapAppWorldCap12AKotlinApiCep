@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -166,11 +167,12 @@ fun CepScreen() {
                         Criação de um objeto Call para o método getEnderecos da interface CepService,
                         passando os valores dos campos de entrada como parâmetros (variáveis de estados).
                          */
-                        val call = RetrofitFactory()
+                        var call = RetrofitFactory()
                             .getCepService()
-                            .getEnderecos(ufState, cidadeState, ruaState)
+                            .getEnderecos(uf =ufState, cidade = cidadeState, rua = ruaState) // Chamada do método getEnderecos
 
                         /*
+                        Fazer a chamada assíncrona do método getEnderecos da interface CepService.
                         Resposta do servidor que será armazenada no argumento response do método onResponse.
                          */
                         call.enqueue(object : Callback<List<Endereco>> {
@@ -199,9 +201,9 @@ fun CepScreen() {
         }
         Spacer(modifier = Modifier.height(8.dp))
         LazyColumn() {
-           items(listaEnderecoState){
-               CardEndereco(it)
-            }
+           items(listaEnderecoState) {
+            CardEndereco(endereco = it)
+           }
         }
     }
 }

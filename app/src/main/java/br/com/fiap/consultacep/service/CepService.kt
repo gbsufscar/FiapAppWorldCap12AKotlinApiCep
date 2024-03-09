@@ -21,6 +21,6 @@ interface CepService {
         @Path("uf") uf: String,
         @Path("cidade") cidade: String,
         @Path("rua") rua: String
-    ): List<Call<Endereco>>
+    ): Call<List<Endereco>>
 
 }
